@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="config.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Website</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+</head>
+
+<style>
+    /* General Classes */
+    h1{
+        font-size: 40px;
+        color: maroon;
+        border-bottom: 1px solid maroon;
+    }
+    /* Header section */
+     .header {
+         width: 100%;
+         background-color: maroon;
+         padding: 30px 0;
+     }
+     .logo{
+         width: 250px;
+         height: 50px;
+         border-radius: 20px;
+         background-color: white;
+         text-align: center;
+         color: maroon;
+         line-height: 50px;
+     }
+     .menu a{
+         color: white;
+         display: inline-block;
+         margin-left: 10px;
+         text-decoration: none;
+         text-align: center;
+     }
+
+    .menu a:hover {
+        color:magenta;
+    }
+    /* Result Section */
+     .resultWindow {
+         margin: 40px 0;
+     }
+
+
+    ul {
+         list-style: none;
+         margin:0;
+         padding: 0;
+     }
+
+     .card {
+         margin-top: 20px;
+         padding: 20px;
+     }
+
+     .card ul li {
+         font-weight: bold;
+     }
+     
+     .name {
+         font-weight: normal;
+     }
+
+     /*Footer Section*/
+     footer {
+         width: 100%;
+         height: 100px;
+         background-color: maroon;
+     }
+</style>
+<body>
+    
+     <!-- Section Header -->
+     <section class="header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="logo">Logo</div>
+                </div>
+                <div class="col-md-9">
+                    <nav class="menu">
+                        <a href="#">About Us</a>
+                        <a href="#">Contact Us</a>
+                        <a href="#">WorldWide Weather</a>
+                    </nav> <!--Navigation links-->
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--  end Section Header -->
+
+    <div class="form">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Weather in your city</h1>
+                    <div class="card">
+                        <form>
+                            <label>Search By:</label>
+                            <input type="text"  name="name" id="name" placeholder="City Name"/>
+                            <br>
+                            <button class="submit btn btn-primary" id="searchbutton">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+   <!--  Section City Info -->
+   <section class="resultWindow">
+    <div class="container-fluid">    
+        <div class="row">
+            <div class="col-md-12">
+                <!-- <img src="" alt="" id="weathericon"> -->
+                <ul id="displayResult"><!--The content will be create by Javascritp --></ul>
+            </div>
+        </div>
+    </div>
+</section>
+<!--  End Section City Info -->
+</body>
+<script>
+    let image = [];
+    let chosenCity = []; //Global Variable
+    
+    //Fetch Function
+    const fetchCity = (city) => {
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${config.API_Key}&units=metric`).then(response => {
+                    if(response.status !== 200) { // I got some error
+                        console.log("error");
+                    }
+                    if(response.status === 404){
+                        alert("City not found. Please enter a valid city")
+                     }
+                    //convert data
+                    response.json().then(searchInput => {
+                    chosenCity = searchInput; //sign the search result to Global Variavel
+
+                    
+                    //Append the result in the html
+                    document.getElementById("displayResult").innerHTML = ""; // Clean the results
+                    let displayInfo = document.createElement('li'); //create the element
+                    displayInfo.innerHTML = `<div class="card"><ul><li>Name: <span class="name">${chosenCity.name}</span></li><li>Temperature: <span class="name">${chosenCity.main.temp}</span></li><li>Wind Speed: <span class="name">${chosenCity.wind.speed}</span></li><li>Feel like: <span class="name">${chosenCity.main.feels_like}</span></li><li>Description: <span class="name">${chosenCity.weather[0].description}</span></li><img src="http://openweathermap.org/img/wn/${chosenCity.weather[0].icon}@2x.png" alt=""></ul></card>`;
+                    document.getElementById("displayResult").appendChild(displayInfo); //select html element -->
+                    
+
+                    // //Append the icon in HTML
+                    // var x = document.createElement("IMG");
+                    // x.setAttribute("src", `http://openweathermap.org/img/wn/${chosenCity.weather[0].icon}@2x.png`);
+                    // x.setAttribute("alt", "weather icon");
+                    // image = x
+                    // document.getElementById("weathericon").appendChild(image);
+
+                    }).catch(error => { // catch the error
+                        console.log(error)
+                    })
+                })
+        }
+        /* Function submit Form to add a new user*/
+        const searchBtn = ()=> {
+                //Grab the values from the form
+                let nameCity= document.getElementById("name").value;
+                if(nameCity === "") {
+                    alert("Enter City Name")
+                } else {
+                    fetchCity(nameCity);
+                }
+            }
+        /*add event click to search submit buton function*/    
+        document.getElementById("searchbutton").addEventListener("click",(element) => {
+        element.preventDefault();
+            searchBtn();
+        })
+        fetchCity("vancouver");
+</script>
+</html>
